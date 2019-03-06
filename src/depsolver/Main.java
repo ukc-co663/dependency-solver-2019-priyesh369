@@ -62,8 +62,8 @@ class Package {
     }
 
     //Reused Tostrings
-    public String toStringNameVersion(){
-      return getName()+"="+getVersion();
+    public String toStringNameVersion() {
+        return getName() + "=" + getVersion();
     }
 }
 
@@ -112,7 +112,7 @@ public class Main {
         // using repo, initial and constraints, compute a solution and print the answer
 
         search(repo, initial, constraints, initial);
-
+        printCheapToJSON();
 
     }
 
@@ -166,7 +166,6 @@ public class Main {
                 builder.remove(pack);
                 steps.add(minuPack);
                 search(repo, initial, constraints, builder);
-                printCheapToJSON();
             }
         }
 
@@ -180,21 +179,70 @@ public class Main {
             if (toCheck.contains(p.toStringNameVersion())) {
                 for (List<String> dep : p.getDepends()) {
                     boolean depsFound = false;
-                    for (String depPack : dep) {
+                    for (String d : dep) {
+                        String[] depPacked = depAndConSplit(d);
+                        if (depsFound == false) {
+                            for (String tC : toCheck) {
+                                String[] tCPacked = depAndConSplit(tC);
+                                if (tCPacked[0].equals(depPacked[0])) { //same package found
+                                    depsFound = true; //TODO: Version Handling
+                                }
+                            }
+                        }
 
                     }
+                    if (depsFound == false) return false;
+                }
+                for (String con : p.getConflicts()) {
+                    boolean conFound = false;
+                    String[] conPacked = depAndConSplit(con);
+                    if (conFound == false) {
+                        for (String tC : toCheck) {
+                            String[] tCPacked = depAndConSplit(tC);
+                            if (tCPacked[0].equals(conPacked[0])) { //same package found
+                                conFound = true; //TODO: Version Handling
+                            }
+                        }
+                    }
+
+                    if (conFound == true) return false;
                 }
             }
         }
-        return true; //TODO
+        return true; //if here then valid
     }
 
     /**
      * state is final if all contraints are met
      */
     static boolean isFinal(List<String> toCheck, List<String> constraints) {
-      
-        return true; //TODO
+        boolean conMet = false;
+        for (String con : constraints) {
+            String action = Character.toString(con.charAt(0));
+            con = con.substring(1);
+            String[] conPacked = depAndConSplit(con);
+
+            if (action.equals("+")) {
+                for (String tC : toCheck) {
+                    String[] tCPacked = depAndConSplit(tC);
+                    if (tCPacked[0].equals(conPacked[0])) {
+                        conMet = true; //TODO Version Handling
+                    }
+                }
+            } else if (action.equals("-")) {
+                boolean matchFound = false;
+                for (String tC : toCheck) {
+                    String[] tcPacked = depAndConSplit(tC);
+                    if (tcPacked[0].equals(conPacked[0])) {
+                        matchFound = true;
+                    }
+                }
+                if (matchFound) {
+                    conMet = false;
+                }
+            }
+        }
+        return conMet;
     }
 
     /**

@@ -97,7 +97,6 @@ public class Main {
     private static List<String> steps = new ArrayList<>();
     private static HashSet<List<String>> seen = new HashSet<>();
     private static HashMap<String, Integer> outputAndCost = new HashMap<>();
-    private static boolean isFinal = false;
 
     public static void main(String[] args) throws IOException {
         TypeReference<List<Package>> repoType = new TypeReference<List<Package>>() {
@@ -113,6 +112,7 @@ public class Main {
 
         search(repo, initial, constraints, initial);
         printCheapToJSON();
+        System.out.println(outputAndCost);
 
     }
 
@@ -137,7 +137,6 @@ public class Main {
             return;
         }
         if (isFinal(builder, constraints)) {
-            isFinal = true;
             //possible solution found - calculate cost and store
             int cost = getCost(repo);
             StringBuilder output = new StringBuilder();

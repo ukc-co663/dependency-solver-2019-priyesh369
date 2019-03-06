@@ -167,17 +167,28 @@ public class Main {
     }
 
     /**
-     * state is vaild if installed packages don't conflict and all deps installed
+     * state is vaild if all deps installed and installed packages don't conflict
      */
     static boolean isValid(List<String> toCheck, List<Package> repo) {
-        return true;
+        for (Package p : repo) {
+            if (toCheck.contains(P.getName() + "="p.getVersion())) {
+                for (List<String> dep : p.getDepends()) {
+                    boolean depsFound = false;
+                    for (String depPack : dep) {
+
+                    }
+                }
+            }
+        }
+        return true; //TODO
     }
 
     /**
      * state is final if all contraints are met
      */
     static boolean isFinal(List<String> toCheck, List<String> constraints) {
-        return true;
+      
+        return true; //TODO
     }
 
     /**
@@ -211,6 +222,49 @@ public class Main {
             }
         }
         System.out.println(JSON.toJSON(lowestSteps));
+    }
+
+    /**
+     * creates a "package" from dependecy and conflict formot (i.e
+     * "B>=3.1" becomes name = B version = 3.1 comparator = >=
+     */
+    private static String[] depAndConSplit(String packString) {
+        String[] temp = new String[2];
+        String[] packaged = new String[3];
+        if (packString.contains("<=")) {
+            temp = packString.split("<=");
+            packaged[0] = temp[0];
+            packaged[1] = "<=";
+            packaged[2] = temp[1];
+        } else if (packString.contains(">=")) {
+            temp = packString.split(">=");
+            packaged[0] = temp[0];
+            packaged[1] = ">=";
+            packaged[2] = temp[1];
+        } else if (packString.contains("<")) {
+            temp = packString.split("<");
+            packaged[0] = temp[0];
+            packaged[1] = "<";
+            packaged[2] = temp[1];
+        } else if (packString.contains(">")) {
+            temp = packString.split(">");
+            packaged[0] = temp[0];
+            packaged[1] = ">";
+            packaged[2] = temp[1];
+        } else if (packString.contains("=")) {
+            temp = packString.split("=");
+            packaged[0] = temp[0];
+            packaged[1] = "=";
+            packaged[2] = temp[1];
+        } else {
+            //unversioned
+            packaged[0] = packString;
+            packaged[1] = "";
+            packaged[2] = "";
+        }
+
+        return packaged;
+
     }
 
     static String readFile(String filename) throws IOException {

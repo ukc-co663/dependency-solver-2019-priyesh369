@@ -207,7 +207,7 @@ public class Main {
         for (Map.Entry<String, Integer> e : outputAndCost.entrySet()) {
             if (e.getValue() < lowestCost) {
                 lowestSteps = Arrays.asList(e.getKey().split("priyesh"));
-                lowestCost = entry.getValue();
+                lowestCost = e.getValue();
             }
         }
         System.out.println(JSON.toJSON(lowestSteps));

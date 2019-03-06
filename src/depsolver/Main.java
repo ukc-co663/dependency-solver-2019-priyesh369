@@ -273,7 +273,7 @@ public class Main {
     //basic min num checking then storing when lowest and at end print the lowest
     private static void printCheapToJSON() {
         List<String> lowestSteps = new ArrayList<>();
-        int lowestCost = -1;
+        int lowestCost = Integer.MAX_VALUE;
         for (Map.Entry<String, Integer> e : outputAndCost.entrySet()) {
             if (e.getValue() < lowestCost) {
                 lowestSteps = Arrays.asList(e.getKey().split("priyesh"));

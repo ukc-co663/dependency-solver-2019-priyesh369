@@ -60,6 +60,11 @@ class Package {
     public void setConflicts(List<String> conflicts) {
         this.conflicts = conflicts;
     }
+
+    //Reused Tostrings
+    public String toStringNameVersion(){
+      return getName()+"="+getVersion();
+    }
 }
 
 /**
@@ -147,7 +152,7 @@ public class Main {
         }
 
         for (Package p : repo) {
-            String pack = p.getName() + "=" + p.getVersion();
+            String pack = p.toStringNameVersion();
             String plusPack = "+" + pack;
             String minuPack = "-" + pack;
             //if package not in builder and isn't added in steps add it and search again
@@ -171,7 +176,7 @@ public class Main {
      */
     static boolean isValid(List<String> toCheck, List<Package> repo) {
         for (Package p : repo) {
-            if (toCheck.contains(P.getName() + "="p.getVersion())) {
+            if (toCheck.contains(p.toStringNameVersion())) {
                 for (List<String> dep : p.getDepends()) {
                     boolean depsFound = false;
                     for (String depPack : dep) {

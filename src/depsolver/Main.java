@@ -143,17 +143,19 @@ public class Main {
             for (String s : steps) {
                 output.append(s + "priyesh"); // arbituray string I can use to split on later
             }
+            System.out.println(output);
             outputAndCost.put(output.toString(), cost);
             return;
-        } else {
+        } //else {
             //not final
             seen.add(builder);
-        }
+       // }
 
         for (Package p : repo) {
             String pack = p.toStringNameVersion();
             String plusPack = "+" + pack;
             String minuPack = "-" + pack;
+            System.out.println(plusPack);
             //if package not in builder and isn't added in steps add it and search again
             // else if it was alreay in system remove and search again
             // (flipping step, may be working as hoped or its just a mess - time will tell :P)
@@ -161,10 +163,14 @@ public class Main {
                 builder.add(pack);
                 steps.add(plusPack);
                 search(repo, initial, constraints, builder);
+                builder.remove(pack);
+                steps.remove(plusPack);
             } else if (initial.contains(pack)) {
                 builder.remove(pack);
                 steps.add(minuPack);
                 search(repo, initial, constraints, builder);
+                builder.add(pack);
+                steps.remove(minuPack);
             }
         }
 

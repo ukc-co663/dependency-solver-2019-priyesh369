@@ -137,7 +137,7 @@ public class Main {
             int cost = getCost(repo);
             StringBuilder output = new StringBuilder();
             for (String s : steps) {
-                output.append(s + '£'); //£ is arbituray symbol I can use to split on later
+                output.append(s + ','); //, is arbituray symbol I can use to split on later
             }
             outputAndCost.put(output.toString(), cost);
             return;
@@ -206,7 +206,7 @@ public class Main {
         int lowestCost = -1;
         for (Map.Entry<String, Integer> e : outputAndCost.entrySet()) {
             if (e.getValue() < lowestCost) {
-                lowestSteps = Arrays.asList(e.getKey().split("£"));
+                lowestSteps = Arrays.asList(e.getKey().split(","));
                 lowestCost = entry.getValue();
             }
         }

@@ -1,0 +1,15 @@
+docker run -ti rgrig/ukc-co663-depsolver
+
+git clone https://github.com/ukc-co663/dependency-solver-2019-priyesh369
+
+./solve tests/example-0/repository.json tests/example-0/initial.json tests/example-0/constraints.json
+./solve tests/seen-0/repository.json tests/seen-0/initial.json tests/seen-0/constraints.json
+./solve tests/seen-1/repository.json tests/seen-1/initial.json tests/seen-1/constraints.json
+./solve tests/seen-2/repository.json tests/seen-2/initial.json tests/seen-2/constraints.json
+./solve tests/seen-3/repository.json tests/seen-3/initial.json tests/seen-3/constraints.json
+./solve tests/seen-4/repository.json tests/seen-4/initial.json tests/seen-4/constraints.json
+./solve tests/seen-5/repository.json tests/seen-5/initial.json tests/seen-5/constraints.json
+./solve tests/seen-6/repository.json tests/seen-6/initial.json tests/seen-6/constraints.json
+./solve tests/seen-7/repository.json tests/seen-7/initial.json tests/seen-7/constraints.json
+./solve tests/seen-8/repository.json tests/seen-8/initial.json tests/seen-8/constraints.json
+./solve tests/seen-9/repository.json tests/seen-9/initial.json tests/seen-9/constraints.json

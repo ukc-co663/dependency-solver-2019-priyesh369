@@ -166,6 +166,7 @@ public class Main {
                 builder.remove(pack);
                 steps.add(minuPack);
                 search(repo, initial, constraints, builder);
+                printCheapToJSON();
             }
         }
 

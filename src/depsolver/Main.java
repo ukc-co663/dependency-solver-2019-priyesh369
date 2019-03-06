@@ -2,13 +2,15 @@ package depsolver;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-
+import java.util.Map.Entry;
 
 class Package {
     private String name;
@@ -18,54 +20,197 @@ class Package {
     private List<String> conflicts = new ArrayList<>();
 
     //gets
-    public String getName() { return name; }
-    public String getVersion() { return version; }
-    public Integer getSize() { return size; }
-    public List<List<String>> getDepends() { return depends; }
-    public List<String> getConflicts() { return conflicts; }
+    public String getName() {
+        return name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public List<List<String>> getDepends() {
+        return depends;
+    }
+
+    public List<String> getConflicts() {
+        return conflicts;
+    }
+
     //sets
-    public void setName(String name) { this.name = name; }
-    public void setVersion(String version) { this.version = version; }
-    public void setSize(Integer size) { this.size = size; }
-    public void setDepends(List<List<String>> depends) { this.depends = depends; }
-    public void setConflicts(List<String> conflicts) { this.conflicts = conflicts; }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
+    public void setDepends(List<List<String>> depends) {
+        this.depends = depends;
+    }
+
+    public void setConflicts(List<String> conflicts) {
+        this.conflicts = conflicts;
+    }
 }
 
-// Psudeocode to implemenet
-// search(x):
-//   if not valid(x) return
-//   if x seen, return
-//   make x seen
-//   if final(x):
-//     solution found!
-//   for each package p in repo:
-//     obtain y from x by flipping state of p (installed<->uninstalled)
-//     search(y)
+/**
+ * Psudeocode to implemenet
+ * search(x):
+ * if not valid(x) return
+ * if x seen, return
+ * make x seen
+ * if final(x): solution found!
+ * <p>
+ * for each package p in repo:
+ * obtain y from x by flipping state of p (installed<->uninstalled)
+ * search(y)
+ * <p>
+ * seen:
+ * The simplest way is to use a set (of the seen states, where "state" = "set of packages").
+ * Marking as seen is adding to the set; checking if seen is testing membership.
+ * In Java, you'd use HashSet.
+ * <p>
+ * Ideas to follow:
+ * Cost of adding package is size of package
+ * Cost of removing package is a million (units?)
+ * <p>
+ * CONSTRAINTS: what needs to be added / removed for the system
+ * REPO: all known packages
+ * INITAL: packages on system at start
+ */
 
 public class Main {
+    private static List<String> steps = new ArrayList<>();
     private static HashSet<List<String>> seen = new HashSet<>();
+    private static HashMap<String, Integer> outputAndCost = new HashMap<>();
+    private static boolean isFinal = false;
+
     public static void main(String[] args) throws IOException {
-        TypeReference<List<Package>> repoType = new TypeReference<List<Package>>() {};
+        TypeReference<List<Package>> repoType = new TypeReference<List<Package>>() {
+        };
         List<Package> repo = JSON.parseObject(readFile(args[0]), repoType);
-        TypeReference<List<String>> strListType = new TypeReference<List<String>>() {};
+        TypeReference<List<String>> strListType = new TypeReference<List<String>>() {
+        };
         List<String> initial = JSON.parseObject(readFile(args[1]), strListType);
         List<String> constraints = JSON.parseObject(readFile(args[2]), strListType);
 
         // CHANGE CODE BELOW:
         // using repo, initial and constraints, compute a solution and print the answer
 
+        search(repo, initial, constraints, initial);
+
+
+    }
+
+    /**
+     * Psudeocode to implemenet
+     * search(x):
+     * if not valid(x) return
+     * if x seen, return
+     * make x seen
+     * if final(x): solution found!
+     * <p>
+     * for each package p in repo:
+     * obtain y from x by flipping state of p (installed<->uninstalled)
+     * search(y)
+     **/
+    static void search(List<Package> repo, List<String> initial, List<String> constraints, List<String> builder) {
+        //builder starts as copy of inital but that can then be manipulated during search process
+        if (!isValid(builder, repo)) {
+            return;
+        }
+        if (seen.contains(builder)) {
+            return;
+        }
+        if (isFinal(builder, constraints)) {
+            isFinal = true;
+            //possible solution found - calculate cost and store
+            int cost = getCost(repo);
+            StringBuilder output = new StringBuilder();
+            for (String s : steps) {
+                output.append(s + '£'); //£ is arbituray symbol I can use to split on later
+            }
+            outputAndCost.put(output.toString(), cost);
+            return;
+        } else {
+            //not final
+            seen.add(builder);
+        }
+
         for (Package p : repo) {
-            System.out.printf("package %s version %s\n", p.getName(), p.getVersion());
-            for (List<String> clause : p.getDepends()) {
-                System.out.printf("  dep:");
-                for (String q : clause) {
-                    System.out.printf(" %s", q);
-                }
-                System.out.printf("\n");
+            String pack = p.getName() + "=" + p.getVersion();
+            String plusPack = "+" + pack;
+            String minuPack = "-" + pack;
+            //if package not in builder and isn't added in steps add it and search again
+            // else if it was alreay in system remove and search again
+            // (flipping step, may be working as hoped or its just a mess - time will tell :P)
+            if (!builder.contains(pack) && !steps.contains(minuPack)) {
+                builder.add(pack);
+                steps.add(plusPack);
+                search(repo, initial, constraints, builder);
+            } else if (initial.contains(pack)) {
+                builder.remove(pack);
+                steps.add(minuPack);
+                search(repo, initial, constraints, builder);
             }
         }
 
+    }
 
+    /**
+     * state is vaild if installed packages don't conflict and all deps installed
+     */
+    static boolean isValid(List<String> toCheck, List<Package> repo) {
+        return true;
+    }
+
+    /**
+     * state is final if all contraints are met
+     */
+    static boolean isFinal(List<String> toCheck, List<String> constraints) {
+        return true;
+    }
+
+    /**
+     * Cost of adding package is size of package
+     * Cost of removing package is a million
+     */
+    private static int getCost(List<Package> repo) {
+        int cost = 0;
+        for (String s : steps) {
+            if (s.contains("-")) {
+                cost += 1000000;
+            } else {
+                for (Package p : repo) {
+                    if (s.substring(1).equals(p.getName() + "=" + p.getVersion())) {
+                        cost += p.getSize();
+                    }
+                }
+            }
+        }
+        return cost;
+    }
+
+    //basic min num checking then storing when lowest and at end print the lowest
+    private static void printCheapToJSON() {
+        List<String> lowestSteps = new ArrayList<>();
+        int lowestCost = -1;
+        for (Map.Entry<String, Integer> e : outputAndCost.entrySet()) {
+            if (e.getValue() < lowestCost) {
+                lowestSteps = Arrays.asList(e.getKey().split("£"));
+                lowestCost = entry.getValue();
+            }
+        }
+        System.out.println(JSON.toJSON(lowestSteps));
     }
 
     static String readFile(String filename) throws IOException {

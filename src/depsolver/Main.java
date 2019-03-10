@@ -164,15 +164,15 @@ public class Main {
                 steps.add(plusPack);
                 search(repo, initial, constraints, builder);
                 //if final it will have been stored, otherwise anything else means this didn't work so can undo the flip
-                // builder.remove(pack);
-                // steps.remove(plusPack);
+                builder.remove(pack);
+                steps.remove(plusPack);
             } else if (initial.contains(pack)) {
                 builder.remove(pack);
                 steps.add(minuPack);
                 search(repo, initial, constraints, builder);
                 //samw reasoning as before
-                // builder.add(pack);
-                // steps.remove(minuPack);
+                builder.add(pack);
+                steps.remove(minuPack);
             }
         }
 

@@ -151,28 +151,30 @@ public class Main {
             seen.add(builder);
        // }
 
-        for (Package p : repo) {
-            String pack = p.toStringNameVersion();
-            String plusPack = "+" + pack;
-            String minuPack = "-" + pack;
-            //System.out.println(plusPack);
-            //if package not in builder and isn't added in steps add it and search again
-            // else if it was alreay in system remove and search again
-            // (flipping step, may be working as hoped or its just a mess - time will tell :P)
-            if (!builder.contains(pack) && !steps.contains(minuPack)) {
-                builder.add(pack);
-                steps.add(plusPack);
-                search(repo, initial, constraints, builder);
-                builder.remove(pack);
-                steps.remove(plusPack);
-            } else if (initial.contains(pack)) {
-                builder.remove(pack);
-                steps.add(minuPack);
-                search(repo, initial, constraints, builder);
-                builder.add(pack);
-                steps.remove(minuPack);
-            }
-        }
+        // for (Package p : repo) {
+        //     String pack = p.toStringNameVersion();
+        //     String plusPack = "+" + pack;
+        //     String minuPack = "-" + pack;
+        //     //System.out.println(plusPack);
+        //     //if package not in builder and isn't added in steps add it and search again
+        //     // else if it was alreay in system remove and search again
+        //     // (flipping step, may be working as hoped or its just a mess - time will tell :P)
+        //     if (!builder.contains(pack) && !steps.contains(minuPack)) {
+        //         builder.add(pack);
+        //         steps.add(plusPack);
+        //         search(repo, initial, constraints, builder);
+        //         //if final it will have been stored, otherwise anything else means this didn't work so can undo the flip
+        //         builder.remove(pack);
+        //         steps.remove(plusPack);
+        //     } else if (initial.contains(pack)) {
+        //         builder.remove(pack);
+        //         steps.add(minuPack);
+        //         search(repo, initial, constraints, builder);
+        //         //samw reasoning as before
+        //         builder.add(pack);
+        //         steps.remove(minuPack);
+        //     }
+        // }
 
     }
 
